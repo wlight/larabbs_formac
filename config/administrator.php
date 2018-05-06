@@ -72,7 +72,7 @@ return array(
      */
     'permission' => function () {
         // 只要是能管理内容的用户，就允许访问后台
-        return Auth::check() && Auth::user()->can('manage_content');
+        return Auth::check() && Auth::user()->can('manage_contents');
     },
 
     /*
@@ -95,7 +95,7 @@ return array(
      *
      * @type string
      */
-    'home_page' => '',
+    'home_page' => 'users',
 
     /*
      * The route to which the user will be taken when they click the "back to site" button
