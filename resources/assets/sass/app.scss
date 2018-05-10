@@ -196,3 +196,24 @@ body {
     background-color: #d15b47 !important;;
   }
 }
+
+/* Siderbar*/
+
+.sidebar {
+  .panel-body {
+    padding: 12px;
+  }
+
+  hr {
+    margin: 8px;
+    margin-bottom: 10px;
+  }
+
+  .active-users {
+    a.media {
+      color: #797879;
+      line-height: 26px;
+      font-size: 0.9em;
+    }
+  }
+}
