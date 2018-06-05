@@ -67,12 +67,11 @@ $api->version('v1', [
         $api->get('categories', 'CategoriesController@index')
             ->name('api.categories.index');
 
-        /*// 需要 token 验证的接口
-        $api->group(['middleware' => 'api.auth'], function ($api) {
-            //当前登录用户信息
-            $api->get('user', 'Userscontroller@me')
-                ->name('api.user.show');
-        });*/
+        $api->get('topics', 'TopicsController@index')
+            ->name('api.topics.index');
+
+        $api->get('users/{user}/topics', 'TopicsController@userIndex')
+            ->name('api.users.topics.index');
     });
 
     // 需要 token 验证的接口
