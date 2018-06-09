@@ -21,7 +21,7 @@ $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api',
-    'middleware' => ['serializer:array', 'bindings']
+    'middleware' => ['serializer:array', 'bindings', 'change-locale']
 ], function ($api){
 
     $api->group([
@@ -92,51 +92,52 @@ $api->version('v1', [
         // 活跃用户
         $api->get('actived/users', 'UsersController@activedIndex')
             ->name('api.actived.users.index');
+
+        // 需要 token 验证的接口
+        $api->group(['middleware' => 'api.auth'], function ($api){
+            //当前登录用户信息
+            $api->get('user', 'UsersController@me')
+                ->name('api.user.show');
+
+            // 编辑登录用户信息
+            $api->patch('user', 'UsersController@update')
+                ->name('api.user.update');
+            // 图片资源
+            $api->post('images', 'ImagesController@store')
+                ->name('api.images.store');
+
+            // 发布话题
+            $api->post('topics', 'TopicsController@store')
+                ->name('api.topics.store');
+
+            $api->patch('topics/{topic}', 'TopicsController@update')
+                ->name('api.topics.update');
+
+            $api->delete('topics/{topic}', 'TopicsController@destroy')
+                ->name('api.topics/destroy');
+            // 发布回复
+            $api->post('topics/{topic}/replies', 'RepliesController@store')
+                ->name('api.topics.replies.store');
+
+            $api->delete('topics/{topic}/replies/{reply}', 'RepliesController@destroy')
+                ->name('api.topics.replies.destroy');
+
+            $api->get('user/notifications', 'NotificationsController@index')
+                ->name('api.user.notifications.index');
+            // 统计通知
+            $api->get('user/notifications/stats', 'NotificationsController@stats')
+                ->name('api.user.notifications.stats');
+
+            // 标记消息通知为已读
+            $api->patch('user/read/notifications', 'NotificationsController@read')
+                ->name('api.user.notifications.read');
+
+            // 当前登录用户权限
+            $api->get('user/permissions', 'PermissionsController@index')
+                ->name('api.user.permissions.index');
+        });
     });
 
-    // 需要 token 验证的接口
-    $api->group(['middleware' => 'api.auth'], function ($api){
-        //当前登录用户信息
-        $api->get('user', 'UsersController@me')
-            ->name('api.user.show');
-
-        // 编辑登录用户信息
-        $api->patch('user', 'UsersController@update')
-            ->name('api.user.update');
-        // 图片资源
-        $api->post('images', 'ImagesController@store')
-            ->name('api.images.store');
-
-        // 发布话题
-        $api->post('topics', 'TopicsController@store')
-            ->name('api.topics.store');
-
-        $api->patch('topics/{topic}', 'TopicsController@update')
-            ->name('api.topics.update');
-
-        $api->delete('topics/{topic}', 'TopicsController@destroy')
-            ->name('api.topics/destroy');
-        // 发布回复
-        $api->post('topics/{topic}/replies', 'RepliesController@store')
-            ->name('api.topics.replies.store');
-
-        $api->delete('topics/{topic}/replies/{reply}', 'RepliesController@destroy')
-            ->name('api.topics.replies.destroy');
-
-        $api->get('user/notifications', 'NotificationsController@index')
-            ->name('api.user.notifications.index');
-        // 统计通知
-        $api->get('user/notifications/stats', 'NotificationsController@stats')
-            ->name('api.user.notifications.stats');
-
-        // 标记消息通知为已读
-        $api->patch('user/read/notifications', 'NotificationsController@read')
-            ->name('api.user.notifications.read');
-
-        // 当前登录用户权限
-        $api->get('user/permissions', 'PermissionsController@index')
-            ->name('api.user.permissions.index');
-    });
 
 });
 
