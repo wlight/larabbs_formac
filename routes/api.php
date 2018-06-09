@@ -73,14 +73,21 @@ $api->version('v1', [
         $api->get('topics/{topic}', 'TopicsController@show')
             ->name('api.topics.show');
 
+        // 某个用户的所有话题
         $api->get('users/{user}/topics', 'TopicsController@userIndex')
             ->name('api.users.topics.index');
 
+        // 某个话题下的所有回复
         $api->get('topics/{topic}/replies', 'RepliesController@index')
             ->name('api.topics.replies.index');
 
+        // 获取某个用户的回复列表
         $api->get('users/{user}/replies', 'RepliesController@userIndex')
             ->name('api.users.replies.index');
+
+        // 资源推荐
+        $api->get('links', 'LinksController@index')
+            ->name('api.links.index');
     });
 
     // 需要 token 验证的接口
