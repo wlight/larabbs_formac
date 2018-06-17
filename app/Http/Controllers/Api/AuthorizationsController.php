@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\AuthorizationsRequest;
 use App\Http\Requests\Api\SocialAuthorizationRequest;
+use App\Traits\PassportToken;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
@@ -15,6 +16,7 @@ use Zend\Diactoros\Response as Psr7Response;
 
 class AuthorizationsController extends Controller
 {
+    use PassportToken;
     public function socialStore($type, SocialAuthorizationRequest $request)
     {
         if (!in_array($type, ['weixin'])) {
@@ -40,14 +42,14 @@ class AuthorizationsController extends Controller
 
         switch ($type){
             case 'weixin':
-                $user = User::where('weixin_unionid', $oauthUser->offsetGet('unionid'))->first();
-//                $unionid = $oauthUser->offsetExists('unionid') ? $oauthUser->offsetGet('unionid'):null;
-//
-//                if ($unionid){
-//                    $user = User::where('weixin_unionid', $unionid)->first();
-//                } else {
-//                    $user = User::where('weixin_openid', $oauthUser->getId())->first();
-//                }
+//                $user = User::where('weixin_unionid', $oauthUser->offsetGet('unionid'))->first();
+                $unionid = $oauthUser->offsetExists('unionid') ? $oauthUser->offsetGet('unionid'):null;
+
+                if ($unionid){
+                    $user = User::where('weixin_unionid', $unionid)->first();
+                } else {
+                    $user = User::where('weixin_openid', $oauthUser->getId())->first();
+                }
 
             // 没有用户，默认创建一个用户
             if (!$user){
@@ -61,9 +63,12 @@ class AuthorizationsController extends Controller
 
             break;
         }
-        $token = Auth::guard('api')->fromUser($user);
+//        $token = Auth::guard('api')->fromUser($user);
+//
+//        return $this->responseWithToken($token)->setStatusCode(201);
 
-        return $this->responseWithToken($token)->setStatusCode(201);
+        $result = $this->getBearerTokenByUser($user, '1', false);
+        return $this->response->array($result)->setStatusCode(201);
     }
 
     public function store(AuthorizationsRequest $request, AuthorizationServer $server, ServerRequestInterface $serverRequest)
