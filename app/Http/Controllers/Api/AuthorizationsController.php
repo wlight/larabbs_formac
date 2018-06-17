@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 use Auth;
+use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\Exception\OAuthServerException;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response as Psr7Response;
 
 class AuthorizationsController extends Controller
 {
@@ -62,9 +66,15 @@ class AuthorizationsController extends Controller
         return $this->responseWithToken($token)->setStatusCode(201);
     }
 
-    public function store(AuthorizationsRequest $request)
+    public function store(AuthorizationsRequest $request, AuthorizationServer $server, ServerRequestInterface $serverRequest)
     {
-        $username = $request->username;
+        try {
+            return $server->respondToAccessTokenRequest($serverRequest, new  Psr7Response)->withStatus(201);
+        } catch (OAuthServerException $e){
+            return $this->response->errorUnauthorized($e->getMessage());
+        }
+
+        /*$username = $request->username;
 
         filter_var($username, FILTER_VALIDATE_EMAIL) ?
             $credentials['email'] = $username :
@@ -76,7 +86,7 @@ class AuthorizationsController extends Controller
             return $this->response->errorUnauthorized(trans('auth.failed'));
         }
 
-        return $this->responseWithToken($token)->setStatusCode(201);
+        return $this->responseWithToken($token)->setStatusCode(201);*/
     }
 
     protected function responseWithToken($token)
@@ -88,15 +98,24 @@ class AuthorizationsController extends Controller
         ]);
     }
 
-    public function update()
+    public function update(AuthorizationServer $server, ServerRequestInterface $serverRequest)
     {
-        $token = Auth::guard('api')->refresh();
-        return $this->responseWithToken($token);
+        /*$token = Auth::guard('api')->refresh();
+        return $this->responseWithToken($token);*/
+
+        try {
+            return $server->respondToAccessTokenRequest($serverRequest, new Psr7Response);
+        } catch (OAuthServerException $e) {
+            return $this->response->errorUnauthorized($e->getMessage());
+        }
     }
 
     public function destroy()
     {
-        Auth::guard('api')->logout();
+        /*Auth::guard('api')->logout();
+        return $this->response->noContent();*/
+
+        $this->user()->token()->revoke();
         return $this->response->noContent();
     }
 }
